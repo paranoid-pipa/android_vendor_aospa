@@ -294,11 +294,11 @@ elif [ "$FLAG_IMG_ZIP" = 'y' ]; then
     checkExit
 
 else
-    m otapackage "$CMD"
+    m updatepackage "$CMD"
 
     checkExit
 
-    cp -f $OUT/aospa_$DEVICE-ota.zip $OUT/aospa-$AOSPA_VERSION.zip
+    cp -f $OUT/aospa_$DEVICE-img.zip $OUT/aospa-$AOSPA_VERSION.zip
     echo "Package Complete: $OUT/aospa-$AOSPA_VERSION.zip"
 fi
 echo -e ""
