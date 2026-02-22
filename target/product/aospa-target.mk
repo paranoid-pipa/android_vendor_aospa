@@ -156,11 +156,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
     ro.face.sense_service=$(TARGET_SUPPORTS_64_BIT_APPS)
 
-# LMOFreeform
-PRODUCT_PACKAGES += \
-    LMOFreeform \
-    LMOFreeformSidebar
-
 # Lineage-specific broadcast actions whitelist
 PRODUCT_COPY_FILES += \
     vendor/aospa/target/config/sysconfig/lineage-sysconfig.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/lineage-sysconfig.xml
