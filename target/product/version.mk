@@ -40,7 +40,7 @@ ifdef AOSPA_BUILDTYPE
       AOSPA_BUILD_VARIANT := stable
   endif
 else
-  AOSPA_BUILD_VARIANT := unofficial
+  AOSPA_BUILD_VARIANT := extended
 endif
 
 # Build Date
