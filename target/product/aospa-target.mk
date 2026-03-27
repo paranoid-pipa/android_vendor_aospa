@@ -19,10 +19,6 @@ PRODUCT_PACKAGES += \
 # Some CTS test case failed after enabling feature config_stopSystemPackagesByDefault
 PRODUCT_PACKAGES += initial-package-stopped-states-aosp.xml
 
-# Abstruct
-PRODUCT_PACKAGES += \
-    Abstruct
-
 # AOSPA Version.
 $(call inherit-product, vendor/aospa/target/product/version.mk)
 
@@ -81,25 +77,9 @@ PRODUCT_PACKAGES += \
     fsck.exfat \
     mkfs.exfat
 
-# Fonts
-PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,vendor/aospa/fonts/,$(TARGET_COPY_OUT_PRODUCT)/fonts) \
-    vendor/aospa/target/config/fonts_customization.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/fonts_customization.xml
-
 # Gestures
 PRODUCT_PACKAGES += \
     vendor.aospa.power-service
-
-# Google - GMS, Pixel, and Mainline Modules
-$(call inherit-product, vendor/google/gms/config.mk)
-$(call inherit-product, vendor/google/pixel/config.mk)
-ifneq ($(TARGET_EXCLUDE_GMODULES), true)
-$(call inherit-product-if-exists, vendor/google/modules/build/mainline_modules.mk)
-endif
-
-PRODUCT_PRODUCT_PROPERTIES += \
-    remote_provisioning.enable_rkpd=true \
-    remote_provisioning.hostname=remoteprovisioning.googleapis.com
 
 # HIDL
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE += \
@@ -127,21 +107,6 @@ PRODUCT_PRODUCT_PROPERTIES += \
 # One Handed Mode
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.support_one_handed_mode=true
-
-# Overlays
-$(call inherit-product, vendor/aospa/overlay/overlays.mk)
-
-# Overlays (Translations)
-$(call inherit-product-if-exists, vendor/aospa/translations/translations.mk)
-
-# Paranoid Packages
-PRODUCT_PACKAGES += \
-    ParanoidPapers \
-    ParanoidSystemUI
-
-# Paranoid Sense
-PRODUCT_PACKAGES += \
-    ParanoidSense
 
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/android.hardware.biometrics.face.xml
