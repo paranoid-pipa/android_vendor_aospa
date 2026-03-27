@@ -3,11 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-ifneq ($(TARGET_DISABLE_EPPE),true)
-# Require all requested packages to exist
-$(call enforce-product-packages-exist-internal,$(lastword $(_include_stack)),product_manifest.xml rild Calendar android.hidl.memory@1.0-impl.vendor vndk_apex_snapshot_package)
-endif
-
 # Enable support for APEX updates
 $(call inherit-product, $(SRC_TARGET_DIR)/product/updatable_apex.mk)
 
@@ -18,18 +13,6 @@ PRODUCT_PACKAGES += \
 # Enable allowlist for some aosp packages that should not be scanned in a "stopped" state
 # Some CTS test case failed after enabling feature config_stopSystemPackagesByDefault
 PRODUCT_PACKAGES += initial-package-stopped-states-aosp.xml
-
-# AOSPA Version.
-$(call inherit-product, vendor/aospa/target/product/version.mk)
-
-# AOSPA private configuration - optional.
-$(call inherit-product-if-exists, vendor/aospa-priv/target/product/aospa-priv-target.mk)
-
-# APNs
-ifneq ($(TARGET_NO_TELEPHONY), true)
-PRODUCT_COPY_FILES += \
-    vendor/aospa/target/config/apns-conf.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/apns-conf.xml
-endif
 
 # Audio
 # Increase volume level steps
@@ -108,22 +91,9 @@ PRODUCT_PRODUCT_PROPERTIES += \
 PRODUCT_PRODUCT_PROPERTIES += \
     ro.support_one_handed_mode=true
 
-PRODUCT_COPY_FILES += \
-    frameworks/native/data/etc/android.hardware.biometrics.face.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/permissions/android.hardware.biometrics.face.xml
-
 # Enable Sense service for 64-bit only
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
     ro.face.sense_service=$(TARGET_SUPPORTS_64_BIT_APPS)
-
-# Permissions
-PRODUCT_COPY_FILES += \
-    vendor/aospa/target/config/permissions/default_permissions_com.google.android.deskclock.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/default-permissions/default_permissions_com.google.android.deskclock.xml \
-    vendor/aospa/target/config/permissions/privapp-permissions-hotword.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/privapp-permissions-hotword.xml \
-    vendor/aospa/target/config/permissions/org.lineageos.health.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/permissions/org.lineageos.health.xml
-
-# Preinstalled Packages
-PRODUCT_COPY_FILES += \
-    vendor/aospa/target/config/preinstalled-packages-aospa.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/sysconfig/preinstalled-packages-aospa.xml
 
 # Privapp-permissions
 PRODUCT_SYSTEM_EXT_PROPERTIES += \
@@ -153,12 +123,6 @@ $(call inherit-product, device/qcom/common/common.mk)
 PRODUCT_PRODUCT_PROPERTIES += \
     persist.sys.disable_rescue=true
 
-# Sensitive Phone Numbers
-ifneq ($(TARGET_NO_TELEPHONY), true)
-PRODUCT_COPY_FILES += \
-    vendor/aospa/target/config/sensitive_pn.xml:$(TARGET_COPY_OUT_SYSTEM)/etc/sensitive_pn.xml
-endif
-
 # Sensors
 PRODUCT_PACKAGES += \
     android.frameworks.sensorservice@1.0.vendor
@@ -175,48 +139,6 @@ $(call inherit-product, vendor/aospa/sepolicy/sepolicy.mk)
 
 # Snapdragon Clang
 $(call inherit-product, vendor/qcom/sdclang/config/SnapdragonClang.mk)
-
-# Telephony - CLO
-PRODUCT_PACKAGES += \
-    extphonelib \
-    extphonelib-product \
-    extphonelib.xml \
-    extphonelib_product.xml \
-    ims-ext-common \
-    ims_ext_common.xml
-
-ifneq ($(TARGET_NO_TELEPHONY), true)
-PRODUCT_PACKAGES += \
-    tcmiface \
-    telephony-ext \
-    qti-telephony-hidl-wrapper \
-    qti-telephony-hidl-wrapper-prd \
-    qti_telephony_hidl_wrapper.xml \
-    qti_telephony_hidl_wrapper_prd.xml \
-    qti-telephony-utils \
-    qti-telephony-utils-prd \
-    qti_telephony_utils.xml \
-    qti_telephony_utils_prd.xml
-
-# Telephony - AOSP
-PRODUCT_PACKAGES += \
-    Stk
-
-PRODUCT_BOOT_JARS += \
-    tcmiface \
-    telephony-ext
-endif
-
-# TextClassifier
-PRODUCT_PACKAGES += \
-    libtextclassifier_annotator_en_model \
-    libtextclassifier_annotator_universal_model \
-    libtextclassifier_actions_suggestions_universal_model \
-    libtextclassifier_lang_id_model
-
-# Theme Picker
-PRODUCT_PACKAGES += \
-    ThemePicker
 
 # WiFi
 PRODUCT_PACKAGES += \

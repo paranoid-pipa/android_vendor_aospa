@@ -1,4 +1,5 @@
 #
+# SPDX-FileCopyrightText: 2017-2024 The LineageOS Project
 # SPDX-FileCopyrightText: Paranoid Android
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -9,16 +10,19 @@ ifeq ($(TARGET_CPU_VARIANT),cortex-a510)
     DEX2OAT_TARGET_CPU_VARIANT_RUNTIME := cortex-a76
 endif
 
-ifeq ($(call is-board-platform-in-list,$(QCOM_BOARD_PLATFORMS)),true)
+# Recovery
+BOARD_USES_FULL_RECOVERY_IMAGE ?= true
+
 # Include our Qualcomm Board configuration.
-include device/qcom/common/BoardConfigQcom.mk
+ifeq ($(call is-board-platform-in-list,$(QCOM_BOARD_PLATFORMS)),true)
+    include device/qcom/common/BoardConfigQcom.mk
 endif
 
 # Include our private configuration - optional.
 -include vendor/aospa-priv/target/board/BoardConfigAOSPAPriv.mk
 
-# Kernel configuration.
-include vendor/aospa/target/board/BoardConfigKernel.mk
+# Include kernel configuration
+include vendor/aospa/config/BoardConfigKernel.mk
 
-# Soong
-include vendor/aospa/target/board/BoardConfigSoong.mk
+# Include soong configuration
+include vendor/aospa/config/BoardConfigSoong.mk
