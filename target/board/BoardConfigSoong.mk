@@ -1,104 +1,68 @@
+PATH_OVERRIDE_SOONG := $(shell echo $(TOOLS_PATH_OVERRIDE))
+
+# Add variables that we wish to make available to soong here.
+EXPORT_TO_SOONG := \
+    KERNEL_ARCH \
+    KERNEL_BUILD_OUT_PREFIX \
+    KERNEL_CROSS_COMPILE \
+    KERNEL_MAKE_CMD \
+    KERNEL_MAKE_FLAGS \
+    KERNEL_PATH \
+    PATH_OVERRIDE_SOONG \
+    TARGET_KERNEL_CONFIG \
+    TARGET_KERNEL_SOURCE \
+    TARGET_KERNEL_PLATFORM_TARGET \
+    TARGET_PREBUILT_KERNEL_HEADERS
+
 # Setup SOONG_CONFIG_* vars to export the vars listed above.
 # Documentation here:
 # https://github.com/LineageOS/android_build_soong/commit/8328367c44085b948c003116c0ed74a047237a69
 
-# PA Variables
+$(call add_soong_config_namespace,aospaVarsPlugin)
+$(foreach v,$(EXPORT_TO_SOONG),$(eval $(call add_soong_config_var,aospaVarsPlugin,$(v))))
 
-SOONG_CONFIG_NAMESPACES += aospaVarsPlugin
-
-SOONG_CONFIG_aospaVarsPlugin :=
-
-define addVar
-  SOONG_CONFIG_aospaVarsPlugin += $(1)
-  SOONG_CONFIG_aospaVarsPlugin_$(1) := $$(subst ",\",$$($1))
-endef
-
-$(foreach v,$(EXPORT_TO_SOONG),$(eval $(call addVar,$(v))))
-
-SOONG_CONFIG_NAMESPACES += aospaGlobalVars
-SOONG_CONFIG_aospaGlobalVars += \
-    needs_camera_boottime \
-    powershare_node \
-    target_camera_package_name \
-    uses_egl_display_array \
-    target_health_charging_control_charging_enabled \
-    target_health_charging_control_charging_disabled \
-    target_health_charging_control_deadline_path \
-    target_health_charging_control_supports_bypass \
-    target_health_charging_control_supports_deadline \
-    target_health_charging_control_supports_toggle \
-    target_init_vendor_lib \
-    target_ld_shim_libs \
-    target_process_sdk_version_override \
-    target_surfaceflinger_udfps_lib
-
-ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_CHARGING_PATH),)
-SOONG_CONFIG_aospaGlobalVars += \
-    target_health_charging_control_charging_path
+# Camera
+ifneq ($(TARGET_CAMERA_OVERRIDE_FORMAT_FROM_RESERVED),)
+    $(error TARGET_CAMERA_OVERRIDE_FORMAT_FROM_RESERVED is deprecated, please migrate to soong_config_set,camera,override_format_from_reserved)
 endif
 
-# Set default values
-TARGET_HEALTH_CHARGING_CONTROL_CHARGING_ENABLED ?= 1
-TARGET_HEALTH_CHARGING_CONTROL_CHARGING_DISABLED ?= 0
-TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_BYPASS ?= true
-TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_DEADLINE ?= false
-TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_TOGGLE ?= true
-TARGET_INIT_VENDOR_LIB ?= vendor_init
-TARGET_SURFACEFLINGER_UDFPS_LIB ?= surfaceflinger_udfps_lib
-
-# Soong value variables
-SOONG_CONFIG_aospaGlobalVars_needs_camera_boottime := $(TARGET_CAMERA_BOOTTIME_TIMESTAMP)
-SOONG_CONFIG_aospaGlobalVars_powershare_node := $(TARGET_POWERSHARE_NODE)
-SOONG_CONFIG_aospaGlobalVars_target_camera_package_name := $(TARGET_CAMERA_PACKAGE_NAME)
-SOONG_CONFIG_aospaGlobalVars_uses_egl_display_array := $(TARGET_USES_EGL_DISPLAY_ARRAY)
-SOONG_CONFIG_aospaGlobalVars_target_init_vendor_lib := $(TARGET_INIT_VENDOR_LIB)
-SOONG_CONFIG_aospaGlobalVars_target_ld_shim_libs := $(subst $(space),:,$(TARGET_LD_SHIM_LIBS))
-SOONG_CONFIG_aospaGlobalVars_target_process_sdk_version_override := $(TARGET_PROCESS_SDK_VERSION_OVERRIDE)
-SOONG_CONFIG_aospaGlobalVars_target_surfaceflinger_udfps_lib := $(TARGET_SURFACEFLINGER_UDFPS_LIB)
-ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_CHARGING_PATH),)
-SOONG_CONFIG_aospaGlobalVars_target_health_charging_control_charging_path := $(TARGET_HEALTH_CHARGING_CONTROL_CHARGING_PATH)
+# Libui
+ifneq ($(TARGET_ADDITIONAL_GRALLOC_10_USAGE_BITS),)
+    $(call soong_config_set,libui,additional_gralloc_10_usage_bits,$(TARGET_ADDITIONAL_GRALLOC_10_USAGE_BITS))
 endif
-SOONG_CONFIG_aospaGlobalVars_target_health_charging_control_charging_enabled := $(TARGET_HEALTH_CHARGING_CONTROL_CHARGING_ENABLED)
-SOONG_CONFIG_aospaGlobalVars_target_health_charging_control_charging_disabled := $(TARGET_HEALTH_CHARGING_CONTROL_CHARGING_DISABLED)
-SOONG_CONFIG_aospaGlobalVars_target_health_charging_control_deadline_path := $(TARGET_HEALTH_CHARGING_CONTROL_DEADLINE_PATH)
-SOONG_CONFIG_aospaGlobalVars_target_health_charging_control_supports_bypass := $(TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_BYPASS)
-SOONG_CONFIG_aospaGlobalVars_target_health_charging_control_supports_deadline := $(TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_DEADLINE)
-SOONG_CONFIG_aospaGlobalVars_target_health_charging_control_supports_toggle := $(TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_TOGGLE)
 
-# Gestures
-define add-gesturevar-if-exist
-$(eval vn := $(shell echo $(1) | tr '[:upper:]' '[:lower:]'))
-$(if $($(1)), \
-  $(eval SOONG_CONFIG_aospaGestureVars += $(vn)) \
-  $(eval SOONG_CONFIG_aospaGestureVars_$(vn) := $(patsubst "%",%,$($(1)))) \
-)
-endef
+# Lineage Health HAL
+ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_CHARGING_PATH),)
+    $(error TARGET_HEALTH_CHARGING_CONTROL_CHARGING_PATH is deprecated, please migrate to soong_config_set,lineage_health,charging_control_charging_path)
+endif
+ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_DEADLINE_PATH),)
+    $(error TARGET_HEALTH_CHARGING_CONTROL_DEADLINE_PATH is deprecated, please migrate to soong_config_set,lineage_health,charging_control_deadline_path)
+endif
+ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_CHARGING_ENABLED),)
+    $(error TARGET_HEALTH_CHARGING_CONTROL_CHARGING_ENABLED is deprecated, please migrate to soong_config_set,lineage_health,charging_control_charging_enabled)
+endif
+ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_CHARGING_DISABLED),)
+    $(error TARGET_HEALTH_CHARGING_CONTROL_CHARGING_DISABLED is deprecated, please migrate to soong_config_set,lineage_health,charging_control_charging_disabled)
+endif
+ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_BYPASS),)
+    $(error TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_BYPASS is deprecated, please migrate to soong_config_set,lineage_health,charging_control_supports_bypass)
+endif
+ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_DEADLINE),)
+    $(error TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_DEADLINE is deprecated, please migrate to soong_config_set,lineage_health,charging_control_supports_deadline)
+endif
+ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_LIMIT),)
+    $(error TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_LIMIT is deprecated, please migrate to soong_config_set,lineage_health,charging_control_supports_limit)
+endif
+ifneq ($(TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_TOGGLE),)
+    $(error TARGET_HEALTH_CHARGING_CONTROL_SUPPORTS_TOGGLE is deprecated, please migrate to soong_config_set,lineage_health,charging_control_supports_toggle)
+endif
 
-SOONG_CONFIG_NAMESPACES += aospaGestureVars
-SOONG_CONFIG_aospaGestureVars :=
-GESTURE_SOONG_VARS := \
-    TARGET_GESTURES_NODE \
-    TARGET_TAP_TO_WAKE_NODE \
-    TARGET_TAP_TO_WAKE_EVENT_NODE \
-    TARGET_DRAW_V_NODE \
-    TARGET_DRAW_INVERSE_V_NODE \
-    TARGET_DRAW_O_NODE \
-    TARGET_DRAW_M_NODE \
-    TARGET_DRAW_W_NODE \
-    TARGET_DRAW_ARROW_LEFT_NODE \
-    TARGET_DRAW_ARROW_RIGHT_NODE \
-    TARGET_ONE_FINGER_SWIPE_UP_NODE \
-    TARGET_ONE_FINGER_SWIPE_RIGHT_NODE \
-    TARGET_ONE_FINGER_SWIPE_DOWN_NODE \
-    TARGET_ONE_FINGER_SWIPE_LEFT_NODE \
-    TARGET_TWO_FINGER_SWIPE_NODE \
-    TARGET_DRAW_S_NODE \
-    TARGET_SINGLE_TAP_TO_WAKE_NODE \
-    TARGET_POWER_FEATURE_EXT_LIB
+# Surfaceflinger
+ifneq ($(TARGET_SURFACEFLINGER_UDFPS_LIB),)
+    $(error TARGET_SURFACEFLINGER_UDFPS_LIB is deprecated, please migrate to soong_config_set,surfaceflinger,udfps_lib)
+endif
 
-$(foreach v,$(GESTURE_SOONG_VARS),$(eval $(call add-gesturevar-if-exist,$(v))))
-
-# Qualcomm variables
-SOONG_CONFIG_NAMESPACES += aosp_vs_qva
-SOONG_CONFIG_aosp_vs_qva += aosp_or_qva
-SOONG_CONFIG_aosp_vs_qva_aosp_or_qva := qva
+# Vendor init
+ifneq ($(TARGET_INIT_VENDOR_LIB),)
+    $(error TARGET_INIT_VENDOR_LIB is deprecated, please migrate to soong_config_set,libinit,vendor_init_lib)
+endif
