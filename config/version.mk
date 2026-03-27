@@ -1,0 +1,65 @@
+#
+# SPDX-FileCopyrightText: Paranoid Android
+# SPDX-License-Identifier: Apache-2.0
+#
+
+#
+# Handle various build version information.
+#
+# Guarantees that the following are defined:
+#     AOSPA_MAJOR_VERSION
+#     AOSPA_MINOR_VERSION
+#     AOSPA_BUILD_VARIANT
+#
+
+# This is the global AOSPA version flavor that determines the focal point
+# behind our releases. This is bundled alongside $(AOSPA_MINOR_VERSION)
+# and only changes per major Android releases.
+AOSPA_MAJOR_VERSION := beryl
+
+# The version code is the upgradable portion during the cycle of
+# every major Android release. Each version code upgrade indicates
+# our own major release during each lifecycle.
+# It is based in three parts
+# X for SPL changes, Y for week, and Z for hotfix.
+ifdef AOSPA_BUILDVERSION
+    AOSPA_MINOR_VERSION := $(AOSPA_BUILDVERSION)
+endif
+
+# Build Variants
+#
+# Alpha: Development / Test releases
+# Beta: Public releases with CI
+# Stable: Final Product | No Tagging
+ifdef AOSPA_BUILDTYPE
+  ifeq ($(AOSPA_BUILDTYPE), ALPHA)
+      AOSPA_BUILD_VARIANT := alpha
+  else ifeq ($(AOSPA_BUILDTYPE), BETA)
+      AOSPA_BUILD_VARIANT := beta
+  else ifeq ($(AOSPA_BUILDTYPE), STABLE)
+      AOSPA_BUILD_VARIANT := stable
+  endif
+else
+  AOSPA_BUILD_VARIANT := unofficial
+endif
+
+# Build Date
+BUILD_DATE := $(shell date -u +%Y%m%d)
+
+# AOSPA Version
+AOSPA_VERSION := $(AOSPA_MAJOR_VERSION)-
+AOSPA_DISPLAY_VERSION := $(shell V1=$(AOSPA_MAJOR_VERSION); echo -n $${V1^})
+
+ifeq ($(filter stable,$(AOSPA_BUILD_VARIANT)),)
+    AOSPA_VERSION += $(AOSPA_BUILD_VARIANT)-
+    AOSPA_DISPLAY_VERSION += $(shell V1=$(AOSPA_BUILD_VARIANT); echo -n $${V1^})
+else
+    AOSPA_VERSION += $(AOSPA_MINOR_VERSION)-
+    AOSPA_DISPLAY_VERSION += $(AOSPA_MINOR_VERSION)
+endif
+
+# Add BUILD_DATE for zip naming
+AOSPA_VERSION += $(AOSPA_BUILD)-$(BUILD_DATE)
+
+# Remove unwanted characters for zip naming
+AOSPA_VERSION := $(shell echo -n $(AOSPA_VERSION) | tr -d '[:space:]')
