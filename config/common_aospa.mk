@@ -135,7 +135,7 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
 endif
 
 # SEPolicy
-$(call inherit-product, vendor/aospa/sepolicy/sepolicy.mk)
+$(call inherit-product, device/aospa/sepolicy/sepolicy.mk)
 
 # Snapdragon Clang
 $(call inherit-product, vendor/qcom/sdclang/config/SnapdragonClang.mk)
